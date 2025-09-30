@@ -1,0 +1,21 @@
+node_modules
+npm-debug.log
+Dockerfile*
+.dockerignore
+.git
+.gitignore
+.vscode
+.dist
+coverage
+*.log
+*.local
+.env
+.env.*
+*.swp
+*.cache
+**/.DS_Store
+**/Thumbs.db
+
+# Vite build output will be created in container
+/dist
+
