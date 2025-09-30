@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Google Sheets Connection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Google Sheets Connection</h1>
+    
+    <div class="info">
+        <strong>Step 1:</strong> Enter your Web App URL below (the one ending with /exec)
+    </div>
+
+    <div>
+        <label for="webappUrl"><strong>Web App URL:</strong></label>
+        <input 
+            type="text" 
+            id="webappUrl" 
+            placeholder="https://script.google.com/macros/s/.../exec"
+            value="https://script.google.com/macros/s/AKfycbzCpp2A04lgEbuVs65_rCngIGFew_W9TE7Nx6BMQgWWsLBbZEmnRvDIouZ9vkwdBYaBEQ/exec"
+        />
+    </div>
+
+    <div style="margin-top: 20px;">
+        <button onclick="testConnection()" id="testBtn">Test Connection</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            const testBtn = document.getElementById('testBtn');
+            const url = document.getElementById('webappUrl').value;
+
+            if (!url) {
+                resultDiv.innerHTML = '<div class="result error">Please enter your Web App URL</div>';
+                return;
+            }
+
+            testBtn.disabled = true;
+            testBtn.textContent = 'Testing...';
+            resultDiv.innerHTML = '<div class="result">Sending test data to Google Sheets...</div>';
+
+            const testData = {
+                name: 'Test User ' + new Date().toLocaleTimeString(),
+                address: '123 Test Street, Tampa, FL',
+                email: 'test@example.com',
+                phone: '555-1234',
+                timestamp: new Date().toISOString(),
+                source: 'Connection Test'
+            };
+
+            try {
+                console.log('Sending request to:', url);
+                console.log('Test data:', testData);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+
+                let resultHTML = '<div class="result ';
+                
+                if (response.ok) {
+                    try {
+                        const jsonResponse = JSON.parse(responseText);
+                        if (jsonResponse.ok === true) {
+                            resultHTML += 'success">✅ <strong>SUCCESS!</strong><br><br>';
+                            resultHTML += 'Data was successfully sent to your Google Sheet.<br><br>';
+                            resultHTML += '<strong>Test Data Sent:</strong><br>';
+                            resultHTML += `Name: ${testData.name}<br>`;
+                            resultHTML += `Address: ${testData.address}<br>`;
+                            resultHTML += `Email: ${testData.email}<br>`;
+                            resultHTML += `Phone: ${testData.phone}<br><br>`;
+                            resultHTML += '<strong>Check your Google Sheet now!</strong>';
+                        } else {
+                            resultHTML += 'error">❌ <strong>ERROR</strong><br><br>';
+                            resultHTML += 'The server returned an error:<br>';
+                            resultHTML += `<code>${JSON.stringify(jsonResponse, null, 2)}</code>`;
+                        }
+                    } catch (e) {
+                        resultHTML += 'success">✅ <strong>Request Sent!</strong><br><br>';
+                        resultHTML += 'Response: ' + responseText + '<br><br>';
+                        resultHTML += 'Check your Google Sheet to see if a new row appeared.';
+                    }
+                } else {
+                    resultHTML += 'error">❌ <strong>HTTP ERROR</strong><br><br>';
+                    resultHTML += `Status: ${response.status}<br>`;
+                    resultHTML += `Response: ${responseText}`;
+                }
+
+                resultHTML += '</div>';
+                resultDiv.innerHTML = resultHTML;
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ <strong>CONNECTION ERROR</strong><br><br>
+                        ${error.message}<br><br>
+                        <strong>Possible causes:</strong><br>
+                        • Wrong Web App URL<br>
+                        • Web App access not set to "Anyone"<br>
+                        • Need to redeploy the Web App<br><br>
+                        Check the browser console (F12) for more details.
+                    </div>
+                `;
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = 'Test Connection';
+            }
+        }
+    </script>
+</body>
+</html>
+

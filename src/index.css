@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Safe Secure Trust Design System - Tampa Pastors Landing Page
+All colors MUST be HSL. Semantic tokens for trust, professionalism, and accessibility.
+*/
+
+@layer base {
+  :root {
+    /* Brand Colors - Calm Trust Palette */
+    --navy: 208 74% 16%;        /* #102A43 - Primary brand navy */
+    --teal: 183 61% 48%;        /* #2CB1BC - Trust accent */
+    --soft-gray: 214 17% 97%;   /* #F5F7FA - Clean backgrounds */
+    --accent-gold: 44 82% 56%;  /* #F0B429 - Attention/CTA accent */
+    
+    /* Semantic Color System */
+    --background: var(--soft-gray);
+    --foreground: var(--navy);
+    
+    --card: 0 0% 100%;
+    --card-foreground: var(--navy);
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--navy);
+    
+    --primary: var(--navy);
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: var(--teal);
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 214 17% 94%;
+    --muted-foreground: 208 20% 45%;
+    
+    --accent: var(--accent-gold);
+    --accent-foreground: var(--navy);
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 214 20% 88%;
+    --input: 0 0% 100%;
+    --ring: var(--teal);
+
+    --radius: 0.5rem;
+    
+    /* Typography System */
+    --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-body: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* Trust & Professional Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--navy)), hsl(var(--teal)));
+    --gradient-trust: linear-gradient(90deg, hsl(var(--teal) / 0.1), hsl(var(--navy) / 0.1));
+    --gradient-cta: linear-gradient(135deg, hsl(var(--accent-gold)), hsl(44 82% 46%));
+    
+    /* Professional Shadows */
+    --shadow-trust: 0 4px 20px hsl(var(--navy) / 0.1);
+    --shadow-card: 0 2px 12px hsl(var(--navy) / 0.08);
+    --shadow-cta: 0 4px 16px hsl(var(--accent-gold) / 0.3);
+    
+    /* Smooth Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer components {
+  /* Trust-Building Components */
+  .trust-badge {
+    @apply inline-flex items-center gap-2 px-3 py-1 text-sm rounded-full;
+    background: var(--gradient-trust);
+    border: 1px solid hsl(var(--teal) / 0.2);
+  }
+  
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+  
+  .cta-gradient {
+    background: var(--gradient-cta);
+  }
+  
+  /* Professional Card System */
+  .trust-card {
+    @apply bg-card rounded-lg border;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
+  }
+  
+  .trust-card:hover {
+    box-shadow: var(--shadow-trust);
+  }
+  
+  /* Focus States for Accessibility */
+  .focus-trust:focus-visible {
+    @apply outline-none ring-2 ring-offset-2;
+    ring-color: hsl(var(--teal));
+  }
+  
+  /* Smooth Scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .text-gradient-hero {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}

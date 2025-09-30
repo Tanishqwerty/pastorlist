@@ -1,0 +1,126 @@
+{
+  "formFields": {
+    "required": {
+      "name": {
+        "type": "string",
+        "label": "Full name",
+        "validation": "required",
+        "maxLength": 100
+      },
+      "address": {
+        "type": "string",
+        "label": "Address",
+        "validation": "required",
+        "maxLength": 200
+      },
+      "email": {
+        "type": "string",
+        "label": "Email",
+        "validation": "required|email",
+        "format": "email"
+      }
+    },
+    "optional": {
+      "phone": {
+        "type": "string",
+        "label": "Phone number",
+        "validation": "optional",
+        "format": "E.164",
+        "maxLength": 20
+      }
+    },
+    "hidden": {
+      "utm_source": {
+        "type": "string",
+        "capture": "auto",
+        "source": "url_parameter"
+      },
+      "utm_medium": {
+        "type": "string", 
+        "capture": "auto",
+        "source": "url_parameter"
+      },
+      "utm_campaign": {
+        "type": "string",
+        "capture": "auto", 
+        "source": "url_parameter"
+      },
+      "utm_content": {
+        "type": "string",
+        "capture": "auto",
+        "source": "url_parameter" 
+      },
+      "utm_term": {
+        "type": "string",
+        "capture": "auto",
+        "source": "url_parameter"
+      },
+      "gclid": {
+        "type": "string",
+        "capture": "auto",
+        "source": "url_parameter",
+        "description": "Google Click ID"
+      },
+      "fbclid": {
+        "type": "string", 
+        "capture": "auto",
+        "source": "url_parameter",
+        "description": "Facebook Click ID"
+      },
+      "referrer": {
+        "type": "string",
+        "capture": "auto", 
+        "source": "document.referrer"
+      },
+      "timestamp": {
+        "type": "datetime",
+        "capture": "auto",
+        "source": "server",
+        "format": "ISO8601"
+      },
+      "user_agent": {
+        "type": "string",
+        "capture": "auto",
+        "source": "navigator.userAgent"
+      },
+      "page_url": {
+        "type": "string", 
+        "capture": "auto",
+        "source": "window.location.href"
+      }
+    }
+  },
+  "validation": {
+    "clientSide": {
+      "required": ["name", "role", "church", "county", "email"],
+      "email": "RFC5322_compliant",
+      "phone": "E.164_format_recommended"
+    },
+    "serverSide": {
+      "sanitization": "strip_html_tags",
+      "maxSubmissions": "1_per_email_per_24h",
+      "spam_protection": "honeypot_and_rate_limiting"
+    }
+  },
+  "integrations": {
+    "analytics": {
+      "events": ["form_start", "form_submit_success", "form_validation_error"],
+      "platform": "google_tag_manager"
+    },
+    "crm": {
+      "lead_routing": "based_on_county",
+      "tags": ["tampa_pilot", "pastor_interest", "trust_inquiry"]
+    },
+    "email": {
+      "autoresponder": "immediate_confirmation",
+      "nda_delivery": "conditional_on_preference",
+      "follow_up": "24h_next_steps"
+    }
+  },
+  "compliance": {
+    "data_retention": "7_years",
+    "privacy_policy": "linked_in_footer", 
+    "consent": "implied_by_form_submission",
+    "nda_availability": "upon_request"
+  }
+}
