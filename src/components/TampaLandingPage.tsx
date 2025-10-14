@@ -7,7 +7,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PlayCircle, Shield, Lock, CheckCircle, FileText, Users, ClipboardList, Home, BarChart3, Building2, Phone, Mail, MapPin, ChevronRight } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { PlayCircle, Shield, Lock, CheckCircle, FileText, Users, ClipboardList, Home, BarChart3, Building2, Phone, Mail, MapPin, ChevronRight, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import heroVideoThumbnail from "@/assets/hero-video-thumbnail.jpg";
 import fiveStepDiagram from "@/assets/5-step-diagram.png";
@@ -16,10 +18,33 @@ import privacyBadges from "@/assets/privacy-badges.png";
 const TampaLandingPage = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
+    // Step 1 - Required
     name: "",
-    address: "",
+    role: "",
+    churchName: "",
+    churchAddress: "",
     email: "",
-    phone: ""
+    phone: "",
+    associateGroupSize: "",
+    targetStartWindow: "",
+    primaryCategory: "",
+    // Step 1 - Optional
+    preferredContactMethod: "",
+    typicalPayType: "",
+    notes: "",
+    // Step 2 - Optional
+    showStep2: false,
+    profileFor: "",
+    lifeStage: [] as string[],
+    goals: [] as string[],
+    jobType: "",
+    incomeRange: "",
+    taxLiability: "",
+    homeStatus: "",
+    children: [] as string[],
+    payrollProvider: "",
+    // Consent
+    consent: false
   });
 
   const [stickyVisible, setStickyVisible] = useState(true);
@@ -28,8 +53,18 @@ const TampaLandingPage = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleArrayToggle = (field: 'lifeStage' | 'goals' | 'children', value: string) => {
+    setFormData(prev => {
+      const currentArray = prev[field] as string[];
+      const newArray = currentArray.includes(value)
+        ? currentArray.filter(item => item !== value)
+        : [...currentArray, value];
+      return { ...prev, [field]: newArray };
+    });
   };
 
   const validateEmail = (email: string) => {
@@ -39,11 +74,14 @@ const TampaLandingPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
-    if (!formData.name || !formData.address || !formData.email) {
+    // Step 1 Required fields validation
+    if (!formData.name || !formData.role || !formData.churchName || 
+        !formData.churchAddress || !formData.email || !formData.phone ||
+        !formData.associateGroupSize || !formData.targetStartWindow || 
+        !formData.primaryCategory) {
       toast({
         title: "Please fill in all required fields",
-        description: "Full name, address, and email are required.",
+        description: "All fields marked with * in Step 1 are required.",
         variant: "destructive"
       });
       return;
@@ -52,6 +90,26 @@ const TampaLandingPage = () => {
     if (!validateEmail(formData.email)) {
       toast({
         title: "Please enter a valid email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Step 2 validation (if shown)
+    if (formData.showStep2 && !formData.profileFor) {
+      toast({
+        title: "Please complete Step 2",
+        description: "If you choose to add a personal plan snapshot, you must select who the profile is for.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Consent validation
+    if (!formData.consent) {
+      toast({
+        title: "Please acknowledge the terms",
+        description: "You must check the acknowledgment box to continue.",
         variant: "destructive"
       });
       return;
@@ -71,10 +129,34 @@ const TampaLandingPage = () => {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
+          // Step 1 - Required
           name: formData.name,
-          address: formData.address,
+          role: formData.role,
+          churchName: formData.churchName,
+          churchAddress: formData.churchAddress,
           email: formData.email,
           phone: formData.phone,
+          associateGroupSize: formData.associateGroupSize,
+          targetStartWindow: formData.targetStartWindow,
+          primaryCategory: formData.primaryCategory,
+          // Step 1 - Optional
+          preferredContactMethod: formData.preferredContactMethod,
+          typicalPayType: formData.typicalPayType,
+          notes: formData.notes,
+          // Step 2 - Optional
+          showStep2: formData.showStep2,
+          profileFor: formData.profileFor,
+          lifeStage: formData.lifeStage.join(', '),
+          goals: formData.goals.join(', '),
+          jobType: formData.jobType,
+          incomeRange: formData.incomeRange,
+          taxLiability: formData.taxLiability,
+          homeStatus: formData.homeStatus,
+          children: formData.children.join(', '),
+          payrollProvider: formData.payrollProvider,
+          // Consent
+          consent: formData.consent,
+          // Metadata
           timestamp: new Date().toISOString(),
           source: 'Tampa Landing Page'
         })
@@ -169,7 +251,7 @@ const TampaLandingPage = () => {
                 onClick={scrollToGetStarted}
                 className="bg-accent-gold text-navy hover:bg-accent-gold/90 text-lg px-8 py-4 font-semibold focus-trust shadow-cta"
               >
-                Get Started Now
+                Start the 2–3 minute Questionnaire
                 <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
 
@@ -507,6 +589,20 @@ const TampaLandingPage = () => {
             </h2>
             
             <Accordion type="single" collapsible className="space-y-4">
+              <AccordionItem value="item-0" className="trust-card p-6">
+                <AccordionTrigger 
+                  className="text-left text-lg font-semibold text-navy hover:no-underline"
+                  onClick={() => trackEvent('faq_open', { question: 'thought-experiment' })}
+                >
+                  Quick thought experiment
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground pt-4">
+                  What would you call a setup where money can accumulate tax-advantaged, may be accessible under certain conditions before 59½, can provide supplemental income without depleting principal, and transfers efficiently to heirs?
+                  <br /><br />
+                  We'll show standard insurance options in plain English. <strong>Examples, not guarantees.</strong>
+                </AccordionContent>
+              </AccordionItem>
+
               <AccordionItem value="item-1" className="trust-card p-6">
                 <AccordionTrigger 
                   className="text-left text-lg font-semibold text-navy hover:no-underline"
@@ -568,60 +664,401 @@ const TampaLandingPage = () => {
                 Ready to explore this for your leadership?
               </h2>
               <p className="text-xl text-white/90">
-                This quick form helps us fit your cohort to the right plan. We'll follow up with next steps and an optional NDA.
+                <strong>Step 1:</strong> Pastor & church basics, plus optional personal snapshot for one household to tailor the first plan. We'll follow up with next steps and an optional NDA.
               </p>
             </div>
 
             {!formSubmitted ? (
               <Card className="trust-card p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-navy mb-2">
-                      Full name *
-                    </label>
-                    <Input 
-                      required
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="focus-trust"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-navy mb-2">
-                      Address *
-                    </label>
-                    <Input 
-                      required
-                      value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      className="focus-trust"
-                    />
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  {/* STEP 1: Required Contact & Pilot Basics */}
+                  <div className="space-y-6">
+                    <div className="border-b border-border pb-4">
+                      <h3 className="text-2xl font-heading font-bold text-navy mb-2">
+                        Step 1 — Required contact & pilot basics
+                      </h3>
+                      <p className="text-sm text-muted-foreground">2–3 minutes</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-navy mb-2">
+                          Full name *
+                        </label>
+                        <Input 
+                          required
+                          value={formData.name}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          className="focus-trust"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-navy mb-2">
+                          Role *
+                        </label>
+                        <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
+                          <SelectTrigger className="focus-trust">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="senior-pastor">Senior Pastor</SelectItem>
+                            <SelectItem value="executive-pastor">Executive Pastor</SelectItem>
+                            <SelectItem value="elder">Elder</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-navy mb-2">
+                          Church name *
+                        </label>
+                        <Input 
+                          required
+                          value={formData.churchName}
+                          onChange={(e) => handleInputChange('churchName', e.target.value)}
+                          className="focus-trust"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-navy mb-2">
+                          Church address (City: Tampa) *
+                        </label>
+                        <Input 
+                          required
+                          value={formData.churchAddress}
+                          onChange={(e) => handleInputChange('churchAddress', e.target.value)}
+                          placeholder="123 Main St, Tampa, FL 33601"
+                          className="focus-trust"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-navy mb-2">
+                          Email *
+                        </label>
+                        <Input 
+                          type="email"
+                          required
+                          value={formData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          className="focus-trust"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-navy mb-2">
+                          Phone *
+                        </label>
+                        <Input 
+                          type="tel"
+                          required
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          className="focus-trust"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-navy mb-2">
+                          Associate group size (initial) *
+                        </label>
+                        <Select value={formData.associateGroupSize} onValueChange={(value) => handleInputChange('associateGroupSize', value)}>
+                          <SelectTrigger className="focus-trust">
+                            <SelectValue placeholder="Select size" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1-3">1–3</SelectItem>
+                            <SelectItem value="4-7">4–7</SelectItem>
+                            <SelectItem value="8-12">8–12</SelectItem>
+                            <SelectItem value="13+">13+</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-navy mb-2">
+                          Target start window *
+                        </label>
+                        <Select value={formData.targetStartWindow} onValueChange={(value) => handleInputChange('targetStartWindow', value)}>
+                          <SelectTrigger className="focus-trust">
+                            <SelectValue placeholder="Select timeframe" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="asap">ASAP</SelectItem>
+                            <SelectItem value="this-month">This month</SelectItem>
+                            <SelectItem value="next-month">Next month</SelectItem>
+                            <SelectItem value="quarter-planning">Quarter planning</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-navy mb-2">
+                          Primary category to start *
+                        </label>
+                        <Select value={formData.primaryCategory} onValueChange={(value) => handleInputChange('primaryCategory', value)}>
+                          <SelectTrigger className="focus-trust">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="single">Single</SelectItem>
+                            <SelectItem value="couple">Couple</SelectItem>
+                            <SelectItem value="family">Family</SelectItem>
+                            <SelectItem value="retiree">Retiree</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Optional Fields */}
+                    <div className="space-y-6 pt-4 border-t border-border/50">
+                      <p className="text-sm font-medium text-muted-foreground">Optional information</p>
+                      
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-2">
+                            Preferred contact method
+                          </label>
+                          <Select value={formData.preferredContactMethod} onValueChange={(value) => handleInputChange('preferredContactMethod', value)}>
+                            <SelectTrigger className="focus-trust">
+                              <SelectValue placeholder="Select method" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="email">Email</SelectItem>
+                              <SelectItem value="phone">Phone</SelectItem>
+                              <SelectItem value="text">Text</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-2">
+                            Typical pay type present
+                          </label>
+                          <Select value={formData.typicalPayType} onValueChange={(value) => handleInputChange('typicalPayType', value)}>
+                            <SelectTrigger className="focus-trust">
+                              <SelectValue placeholder="Select pay type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="w2">W-2</SelectItem>
+                              <SelectItem value="1099">1099</SelectItem>
+                              <SelectItem value="small-business">Small-business</SelectItem>
+                              <SelectItem value="retiree">Retiree</SelectItem>
+                              <SelectItem value="clergy-housing">Clergy housing allowance</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-navy mb-2">
+                            Notes (privacy concerns, timing, etc.)
+                          </label>
+                          <Textarea 
+                            value={formData.notes}
+                            onChange={(e) => handleInputChange('notes', e.target.value)}
+                            className="focus-trust"
+                            rows={3}
+                            placeholder="Any additional information you'd like to share..."
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-navy mb-2">
-                      Email *
-                    </label>
-                    <Input 
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="focus-trust"
-                    />
+                  {/* STEP 2: Personal Plan Snapshot (Optional) */}
+                  <div className="space-y-6 border-t border-border pt-6">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-between focus-trust"
+                      onClick={() => handleInputChange('showStep2', !formData.showStep2)}
+                    >
+                      <span className="text-lg font-semibold">
+                        Step 2 — Personal plan snapshot (optional)
+                      </span>
+                      <ChevronDown className={`h-5 w-5 transition-transform ${formData.showStep2 ? 'rotate-180' : ''}`} />
+                    </Button>
+                    
+                    {formData.showStep2 && (
+                      <div className="space-y-6 bg-soft-gray p-6 rounded-lg">
+                        <p className="text-sm text-muted-foreground">
+                          Purpose: personalize the first plan. This is about one household (the pastor's or a first associate). No names of members other than the pastor.
+                        </p>
+
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-2">
+                            Who is this profile for? *
+                          </label>
+                          <Select value={formData.profileFor} onValueChange={(value) => handleInputChange('profileFor', value)}>
+                            <SelectTrigger className="focus-trust">
+                              <SelectValue placeholder="Select option" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="myself">Myself</SelectItem>
+                              <SelectItem value="staff-member">A staff member</SelectItem>
+                              <SelectItem value="congregant">A congregant (no name)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-3">
+                            Life stage (choose 1–2)
+                          </label>
+                          <div className="space-y-3">
+                            {['Newly married', 'Growing family', 'Single & ambitious', 'Empty nester', 'Retiree'].map((stage) => (
+                              <div key={stage} className="flex items-center space-x-2">
+                                <Checkbox 
+                                  id={`life-${stage}`}
+                                  checked={formData.lifeStage.includes(stage)}
+                                  onCheckedChange={() => handleArrayToggle('lifeStage', stage)}
+                                />
+                                <Label htmlFor={`life-${stage}`} className="text-sm cursor-pointer">{stage}</Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-3">
+                            Goals (check any)
+                          </label>
+                          <div className="space-y-3">
+                            {['College funding', 'New home', 'Debt reduction', 'Retirement income', 'Legacy planning', 'Emergency reserves'].map((goal) => (
+                              <div key={goal} className="flex items-center space-x-2">
+                                <Checkbox 
+                                  id={`goal-${goal}`}
+                                  checked={formData.goals.includes(goal)}
+                                  onCheckedChange={() => handleArrayToggle('goals', goal)}
+                                />
+                                <Label htmlFor={`goal-${goal}`} className="text-sm cursor-pointer">{goal}</Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-navy mb-2">
+                              Job type
+                            </label>
+                            <Select value={formData.jobType} onValueChange={(value) => handleInputChange('jobType', value)}>
+                              <SelectTrigger className="focus-trust">
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="w2">W-2</SelectItem>
+                                <SelectItem value="1099">1099</SelectItem>
+                                <SelectItem value="small-business">Small-business owner</SelectItem>
+                                <SelectItem value="clergy-housing">Clergy housing allowance</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-navy mb-2">
+                              Gross income band (household)
+                            </label>
+                            <Select value={formData.incomeRange} onValueChange={(value) => handleInputChange('incomeRange', value)}>
+                              <SelectTrigger className="focus-trust">
+                                <SelectValue placeholder="Select range" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="<50k">&lt;$50k</SelectItem>
+                                <SelectItem value="50-75k">$50–75k</SelectItem>
+                                <SelectItem value="75-125k">$75–125k</SelectItem>
+                                <SelectItem value="125-200k">$125–200k</SelectItem>
+                                <SelectItem value=">200k">&gt;$200k</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-navy mb-2">
+                              Federal tax liability band (annual)
+                            </label>
+                            <Select value={formData.taxLiability} onValueChange={(value) => handleInputChange('taxLiability', value)}>
+                              <SelectTrigger className="focus-trust">
+                                <SelectValue placeholder="Select range" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="<5k">&lt;$5k</SelectItem>
+                                <SelectItem value="5-10k">$5–10k</SelectItem>
+                                <SelectItem value="10-20k">$10–20k</SelectItem>
+                                <SelectItem value="20-35k">$20–35k</SelectItem>
+                                <SelectItem value=">35k">&gt;$35k</SelectItem>
+                                <SelectItem value="unsure">Unsure</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-navy mb-2">
+                              Home status
+                            </label>
+                            <Select value={formData.homeStatus} onValueChange={(value) => handleInputChange('homeStatus', value)}>
+                              <SelectTrigger className="focus-trust">
+                                <SelectValue placeholder="Select status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="renting">Renting</SelectItem>
+                                <SelectItem value="own-mortgage">Own with mortgage</SelectItem>
+                                <SelectItem value="own-clear">Own free & clear</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-3">
+                            Children
+                          </label>
+                          <div className="space-y-3">
+                            {['None', 'K-8', 'High School', 'College'].map((child) => (
+                              <div key={child} className="flex items-center space-x-2">
+                                <Checkbox 
+                                  id={`child-${child}`}
+                                  checked={formData.children.includes(child)}
+                                  onCheckedChange={() => handleArrayToggle('children', child)}
+                                />
+                                <Label htmlFor={`child-${child}`} className="text-sm cursor-pointer">{child}</Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-2">
+                            Payroll/provider (if known)
+                          </label>
+                          <Input 
+                            value={formData.payrollProvider}
+                            onChange={(e) => handleInputChange('payrollProvider', e.target.value)}
+                            className="focus-trust"
+                            placeholder="e.g., ADP, Paychex, Church Name Payroll"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-navy mb-2">
-                      Phone number
-                    </label>
-                    <Input 
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      className="focus-trust"
-                    />
+
+                  {/* CONSENT */}
+                  <div className="space-y-4 border-t border-border pt-6">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox 
+                        id="consent"
+                        checked={formData.consent}
+                        onCheckedChange={(checked) => handleInputChange('consent', checked as boolean)}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="consent" className="text-sm leading-relaxed cursor-pointer">
+                        <strong>Acknowledgment: *</strong> General information only—not legal, tax, or investment advice. Illustrations are examples, not guarantees. Confidential handling; licensed counselors support setup.
+                      </Label>
+                    </div>
                   </div>
 
                   <Button 
@@ -630,7 +1067,7 @@ const TampaLandingPage = () => {
                     disabled={isSubmitting}
                     className="w-full bg-accent-gold text-navy hover:bg-accent-gold/90 text-lg font-semibold focus-trust shadow-cta disabled:opacity-50"
                   >
-                    {isSubmitting ? "Submitting..." : "Get Started"}
+                    {isSubmitting ? "Submitting..." : "Submit Questionnaire"}
                   </Button>
                 </form>
               </Card>

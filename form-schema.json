@@ -1,32 +1,144 @@
 {
   "formFields": {
-    "required": {
+    "step1_required": {
       "name": {
         "type": "string",
         "label": "Full name",
         "validation": "required",
         "maxLength": 100
       },
-      "address": {
+      "role": {
         "type": "string",
-        "label": "Address",
+        "label": "Role",
+        "validation": "required",
+        "options": ["senior-pastor", "executive-pastor", "elder", "admin", "other"]
+      },
+      "churchName": {
+        "type": "string",
+        "label": "Church name",
         "validation": "required",
         "maxLength": 200
+      },
+      "churchAddress": {
+        "type": "string",
+        "label": "Church address (City: Tampa)",
+        "validation": "required",
+        "maxLength": 300
       },
       "email": {
         "type": "string",
         "label": "Email",
         "validation": "required|email",
         "format": "email"
-      }
-    },
-    "optional": {
+      },
       "phone": {
         "type": "string",
-        "label": "Phone number",
-        "validation": "optional",
+        "label": "Phone",
+        "validation": "required",
         "format": "E.164",
         "maxLength": 20
+      },
+      "associateGroupSize": {
+        "type": "string",
+        "label": "Associate group size (initial)",
+        "validation": "required",
+        "options": ["1-3", "4-7", "8-12", "13+"]
+      },
+      "targetStartWindow": {
+        "type": "string",
+        "label": "Target start window",
+        "validation": "required",
+        "options": ["asap", "this-month", "next-month", "quarter-planning"]
+      },
+      "primaryCategory": {
+        "type": "string",
+        "label": "Primary category to start",
+        "validation": "required",
+        "options": ["single", "couple", "family", "retiree"]
+      }
+    },
+    "step1_optional": {
+      "preferredContactMethod": {
+        "type": "string",
+        "label": "Preferred contact method",
+        "validation": "optional",
+        "options": ["email", "phone", "text"]
+      },
+      "typicalPayType": {
+        "type": "string",
+        "label": "Typical pay type present",
+        "validation": "optional",
+        "options": ["w2", "1099", "small-business", "retiree", "clergy-housing"]
+      },
+      "notes": {
+        "type": "string",
+        "label": "Notes (privacy concerns, timing, etc.)",
+        "validation": "optional",
+        "maxLength": 1000
+      }
+    },
+    "step2_optional": {
+      "profileFor": {
+        "type": "string",
+        "label": "Who is this profile for?",
+        "validation": "required_if_step2_enabled",
+        "options": ["myself", "staff-member", "congregant"]
+      },
+      "lifeStage": {
+        "type": "array",
+        "label": "Life stage (choose 1–2)",
+        "validation": "optional",
+        "options": ["Newly married", "Growing family", "Single & ambitious", "Empty nester", "Retiree"]
+      },
+      "goals": {
+        "type": "array",
+        "label": "Goals (check any)",
+        "validation": "optional",
+        "options": ["College funding", "New home", "Debt reduction", "Retirement income", "Legacy planning", "Emergency reserves"]
+      },
+      "jobType": {
+        "type": "string",
+        "label": "Job type",
+        "validation": "optional",
+        "options": ["w2", "1099", "small-business", "clergy-housing"]
+      },
+      "incomeRange": {
+        "type": "string",
+        "label": "Gross income band (household)",
+        "validation": "optional",
+        "options": ["<50k", "50-75k", "75-125k", "125-200k", ">200k"]
+      },
+      "taxLiability": {
+        "type": "string",
+        "label": "Federal tax liability band (annual)",
+        "validation": "optional",
+        "options": ["<5k", "5-10k", "10-20k", "20-35k", ">35k", "unsure"]
+      },
+      "homeStatus": {
+        "type": "string",
+        "label": "Home status",
+        "validation": "optional",
+        "options": ["renting", "own-mortgage", "own-clear"]
+      },
+      "children": {
+        "type": "array",
+        "label": "Children",
+        "validation": "optional",
+        "options": ["None", "K-8", "High School", "College"]
+      },
+      "payrollProvider": {
+        "type": "string",
+        "label": "Payroll/provider (if known)",
+        "validation": "optional",
+        "maxLength": 100
+      }
+    },
+    "consent": {
+      "consent": {
+        "type": "boolean",
+        "label": "Acknowledgment",
+        "validation": "required",
+        "description": "General information only—not legal, tax, or investment advice. Illustrations are examples, not guarantees. Confidential handling; licensed counselors support setup."
       }
     },
     "hidden": {
@@ -92,7 +204,9 @@
   },
   "validation": {
     "clientSide": {
-      "required": ["name", "role", "church", "county", "email"],
+      "step1_required": ["name", "role", "churchName", "churchAddress", "email", "phone", "associateGroupSize", "targetStartWindow", "primaryCategory"],
+      "step2_conditional": "profileFor_required_if_showStep2_true",
+      "consent_required": ["consent"],
       "email": "RFC5322_compliant",
       "phone": "E.164_format_recommended"
     },
